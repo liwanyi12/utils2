@@ -1,0 +1,19 @@
+{
+    "name": "liwanyi/utils2",
+    "description": "工具类",
+    "type": "lib",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Liwanyi\\Utils2\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "wanyi li",
+            "email": "3357702725@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
