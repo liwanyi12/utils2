@@ -18,9 +18,7 @@ class Lock
     {
         $redis = new \Redis();
         $redis->connect($this->config['host'], $this->config['port']);
-        if(isset($config['auth'])){
-            $redis->auth($config['auth']);
-        }
+        $redis->auth($this->config['auth']);
         return $redis;
     }
 
