@@ -3,54 +3,41 @@
 namespace Liwanyi\Utils2;
 class Redis
 {
-    private $redis;
-
-    //当前数据库ID号
-    protected $dbId = 0;
-
-    //当前权限认证码
-    protected $auth;
-
-    /**
-     * 实例化的对象,单例模式.
-     */
-    static private $_instance = array();
-
-    private $k;
-
-    //连接属性数组
-    protected $attr = array(
-        //连接超时时间，redis配置文件中默认为300秒
-        'timeout' => 30,
-        //选择的数据库。
-        'db_id' => 0,
-    );
-
-    //什么时候重新建立连接
-    protected $expireTime;
-
-    protected $host;
-
-    protected $port;
-
-
-    private function __construct($config, $attr = array())
+    public function __construct($config = [])
     {
-        $this->attr  = array_merge($this->attr, $attr);
-        $this->redis = new Redis();
-        $this->port  = $config['port'] ? $config['port'] : 6379;
-        $this->host  = $config['host'];
-        $this->redis->connect($this->host, $this->port, $this->attr['timeout']);
-        if ($config['auth']) {
-            $this->auth($config['auth']);
-            $this->auth = $config['auth'];
+        $this->config = $config ? $config : ['host' => '127.0.0.1', 'port' => 6379,];
+        $this->redis = $this->connect();
+    }
+
+    public function connect()
+    {
+        $redis = new \Redis();
+        $redis->connect($this->config['host'], $this->config['port']);
+        $redis->auth($this->config['auth']);
+        return $redis;
+    }
+
+    // 设置key
+    public function setValue($key, $value, $expire=0){
+        if($expire == 0){
+            $ret =  $this->redis->set($key, $value);
+        }else{
+            $ret =  $this->redis->setex($key, $expire, $value);
         }
-        $this->expireTime = time() + $this->attr['timeout'];
+        return $ret;
     }
 
 
-    private function __clone(){}
+    // 当key 不存在的时候设置 否则设置失败
+    public function setnx($key, $value){
+        return $this->redis->setnx($key, $value);
+    }
 
+    // 删除缓存
+    public function remove($key){
+        // $key => "key1" || array('key1','key2')
+        return $this->redis->del($key);
+    }
 
-
+// redis 获取字符串  队列 集合 有序集合
 }

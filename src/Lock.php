@@ -10,7 +10,7 @@ class Lock
 
     public function __construct($config = [])
     {
-        $this->config = $config ? $config : ['host' => '127.0.0.1', 'port' => 6379,'auth'=>''];
+        $this->config = $config ? $config : ['host' => '127.0.0.1', 'port' => 6379,];
         $this->redis = $this->connect();
     }
 
