@@ -8,10 +8,13 @@ class Lock
     private $config;
     private $redis;
 
+    protected $db;
     public function __construct($config = [])
     {
         $this->config = $config ? $config : ['host' => '127.0.0.1', 'port' => 6379,];
         $this->redis = $this->connect();
+        $db = $this->config['db']??0;
+        $this->redis->select($db);
     }
 
     public function connect()

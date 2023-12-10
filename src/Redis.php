@@ -20,11 +20,17 @@ class Redis
     // 设置key
     public function setValue($key, $value, $expire=0){
         if($expire == 0){
-            $ret =  $this->redis->set($key, $value);
+            return $this->redis->set($key, $value);
         }else{
-            $ret =  $this->redis->setex($key, $expire, $value);
+            return $this->redis->setex($key, $expire, $value);
         }
-        return $ret;
+    }
+
+    public function getValue($key){
+        if(is_array($key)){
+            return $this->redis->mGet($key);
+        }
+        return $this->redis->get($key);
     }
 
 
