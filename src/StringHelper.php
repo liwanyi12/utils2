@@ -1,8 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Liwanyi\Utils2;
 
-class Common
+class StringHelper
 {
     /**
      * @text 返回随机字符串
@@ -14,7 +15,14 @@ class Common
     }
 
 
-
-
-
 }
+
+
+
+
+
+
+
+
+
+

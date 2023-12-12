@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Liwanyi\Utils2;
 class Redis
@@ -18,16 +19,18 @@ class Redis
     }
 
     // 设置key
-    public function setValue($key, $value, $expire=0){
-        if($expire == 0){
+    public function setValue($key, $value, $expire = 0)
+    {
+        if ($expire == 0) {
             return $this->redis->set($key, $value);
-        }else{
+        } else {
             return $this->redis->setex($key, $expire, $value);
         }
     }
 
-    public function getValue($key){
-        if(is_array($key)){
+    public function getValue($key)
+    {
+        if (is_array($key)) {
             return $this->redis->mGet($key);
         }
         return $this->redis->get($key);
@@ -35,15 +38,17 @@ class Redis
 
 
     // 当key 不存在的时候设置 否则设置失败
-    public function setnx($key, $value){
+    public function setnx($key, $value)
+    {
         return $this->redis->setnx($key, $value);
     }
 
     // 删除缓存
-    public function remove($key){
+    public function remove($key)
+    {
         // $key => "key1" || array('key1','key2')
         return $this->redis->del($key);
     }
 
-// redis 获取字符串  队列 集合 有序集合
+// redis 获取字符串  队列 集合 有序集合 redis 限流
 }

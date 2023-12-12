@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Liwanyi\Utils2;
 
 class Prize
@@ -9,15 +9,16 @@ class Prize
     {
         $step = 0;
         foreach ($result as $key => $item) {
-            $current = Arr::first($item);
+            $current = array_values($item)[0];
             $current = $current * ($count / 100);
             $current = intval(floor($current));
             if ($rand >= $step && $rand < ($current + $step)) {
-                return Arr::last($item);
+                return end($item);
             }
             $step += $current;
         }
-        return Arr::last(Arr::last($result));
+        $new_data = end($result);
+        return end($new_data);
     }
 
 }
