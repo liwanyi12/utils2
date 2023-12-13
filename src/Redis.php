@@ -50,5 +50,54 @@ class Redis
         return $this->redis->del($key);
     }
 
-// redis 获取字符串  队列 集合 有序集合 redis 限流
+// redis 列表 集合 有序集合 redis 限流
+
+    /**
+     * 从左边（头部） 添加数据
+     * @param $key
+     * @param ...$args
+     * @return false|int|\Redis
+     * @throws \RedisException
+     */
+    public function lPushValue($key, ...$args)
+    {
+        return $this->redis->lPush($key, ...$args);
+    }
+
+    /**
+     * 移除元素
+     * @param $key
+     * @param $count
+     * @return bool|mixed|\Redis
+     * @throws \RedisException
+     */
+    public function lPopValue($key, $count = 0)
+    {
+        return $this->redis->lPop($key, $count);
+    }
+
+    /**
+     * 从右边（尾部） 添加数据
+     * @param $key
+     * @param ...$args
+     * @return false|int|\Redis
+     * @throws \RedisException
+     */
+    public function rPushValue($key, ...$args)
+    {
+        return $this->redis->rPush($key, ...$args);
+    }
+
+    /**
+     * 移除元素（右边）
+     * @param $key
+     * @param $count
+     * @return bool|mixed|\Redis
+     * @throws \RedisException
+     */
+    public function rPopValue($key, $count = 0)
+    {
+        return $this->redis->rPop($key, $count);
+    }
+
 }
