@@ -7,7 +7,19 @@ use Liwanyi\Utils2\Redis;
 
 require "./vendor/autoload.php";
 $Test = new Redis();
-$a = $Test->setValue('prize',30);
-echo $a;
-$b = $Test->getValue('prize');
-var_dump($b);
+//$a = $Test->setValue('prize',30);
+//echo $a;
+//$b = $Test->getValue('prize');
+//var_dump($b);
+$Test->lPushValue('mylist','zhangsan');
+var_dump($Test);
+
+
+
+
+
+
+
+
+
+
