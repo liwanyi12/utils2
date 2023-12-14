@@ -30,6 +30,9 @@ class Redis
 
     public function getValue($key)
     {
+        if(empty($key)){
+            return '';
+        }
         if (is_array($key)) {
             return $this->redis->mGet($key);
         }
@@ -40,6 +43,9 @@ class Redis
     // 当key 不存在的时候设置 否则设置失败
     public function setnx($key, $value)
     {
+        if(empty($key)){
+            return '';
+        }
         return $this->redis->setnx($key, $value);
     }
 
@@ -47,6 +53,10 @@ class Redis
     public function remove($key)
     {
         // $key => "key1" || array('key1','key2')
+        if(empty($key)){
+            return '';
+        }
+
         return $this->redis->del($key);
     }
 
@@ -61,6 +71,10 @@ class Redis
      */
     public function lPushValue($key, ...$args)
     {
+        if(empty($key)){
+            return '';
+        }
+
         return $this->redis->lPush($key, ...$args);
     }
 
@@ -73,6 +87,9 @@ class Redis
      */
     public function lPopValue($key, $count = 0)
     {
+        if(empty($key)){
+            return '';
+        }
         return $this->redis->lPop($key, $count);
     }
 
@@ -85,6 +102,9 @@ class Redis
      */
     public function rPushValue($key, ...$args)
     {
+        if(empty($key)){
+            return '';
+        }
         return $this->redis->rPush($key, ...$args);
     }
 
@@ -97,6 +117,9 @@ class Redis
      */
     public function rPopValue($key, $count = 0)
     {
+        if (empty($key)) {
+            return '';
+        }
         return $this->redis->rPop($key, $count);
     }
 
@@ -109,6 +132,10 @@ class Redis
      */
     public function lLenList($list_name)
     {
+        if (empty($list_name)) {
+            return '';
+        }
+
         return $this->redis->lLen($list_name);
     }
 
@@ -117,11 +144,14 @@ class Redis
      * @param $list_name
      * @param $start
      * @param $end
-     * @return array|\Redis
+     * @return array|\Redis|string
      * @throws \RedisException
      */
     public function lRangeValue($list_name, $start = 0, $end = -1)
     {
+        if (empty($list_name) || empty($start) || empty($end)) {
+            return '';
+        }
         return $this->redis->lRange($list_name, $start, $end);
     }
 
@@ -134,12 +164,12 @@ class Redis
      * @return bool|int|\Redis
      * @throws \RedisException
      */
-    public function lRemValue($key, $value, $count =0)
+    public function lRemValue($key, $value, $count = 0)
     {
         if (!$key || empty($value)) {
             return '';
         }
-        return $this->redis->lrem($key, $value, $count );
+        return $this->redis->lrem($key, $value, $count);
     }
 
 
@@ -152,7 +182,8 @@ class Redis
      * @return bool|\Redis|string
      * @throws \RedisException
      */
-    public function lSetValue($key, $value, $index = 0){
+    public function lSetValue($key, $value, $index = 0)
+    {
         if (!$key || empty($value)) {
             return '';
         }
@@ -167,11 +198,12 @@ class Redis
      * @return array|false|\Redis
      * @throws \RedisException
      */
-    public function lLTrim($list_name,$start,$end){
-        if(empty($list_name) || empty($start) || empty($end)){
+    public function lLTrim($list_name, $start, $end)
+    {
+        if (empty($list_name) || empty($start) || empty($end)) {
             return '';
         }
-        return $this->redis->lTrim($list_name,$start,$end);
+        return $this->redis->lTrim($list_name, $start, $end);
     }
 
 }
