@@ -74,6 +74,12 @@ class Redis
         if(empty($key)){
             return '';
         }
+        // 处理数组
+        if(is_array($args) && (!empty($args))){
+            foreach ($args as $v){
+                return $this->redis->lPush($key, $v);
+            }
+        }
 
         return $this->redis->lPush($key, ...$args);
     }
@@ -85,12 +91,12 @@ class Redis
      * @return bool|mixed|\Redis
      * @throws \RedisException
      */
-    public function lPopValue($key, $count = 0)
+    public function lPopValue($key)
     {
         if(empty($key)){
             return '';
         }
-        return $this->redis->lPop($key, $count);
+        return $this->redis->lPop($key);
     }
 
     /**
@@ -115,12 +121,12 @@ class Redis
      * @return bool|mixed|\Redis
      * @throws \RedisException
      */
-    public function rPopValue($key, $count = 0)
+    public function rPopValue($key)
     {
         if (empty($key)) {
             return '';
         }
-        return $this->redis->rPop($key, $count);
+        return $this->redis->rPop($key);
     }
 
 
@@ -149,7 +155,7 @@ class Redis
      */
     public function lRangeValue($list_name, $start = 0, $end = -1)
     {
-        if (empty($list_name) || empty($start) || empty($end)) {
+        if (empty($list_name)) {
             return '';
         }
         return $this->redis->lRange($list_name, $start, $end);
