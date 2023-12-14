@@ -62,6 +62,7 @@ class Redis
 
 // redis 列表 集合 有序集合 redis 限流
 
+// 列表********************************************************************************
     /**
      * 从左边（头部） 添加数据
      * @param $key
@@ -73,12 +74,6 @@ class Redis
     {
         if(empty($key)){
             return '';
-        }
-        // 处理数组
-        if(is_array($args) && (!empty($args))){
-            foreach ($args as $v){
-                return $this->redis->lPush($key, $v);
-            }
         }
 
         return $this->redis->lPush($key, ...$args);
@@ -211,5 +206,100 @@ class Redis
         }
         return $this->redis->lTrim($list_name, $start, $end);
     }
+
+
+    /**
+     * 在指定位置 插入数据
+     * @param $key
+     * @param $position
+     * @param $pivot
+     * @param $value
+     * @return false|int|\Redis
+     * @throws \RedisException
+     */
+    public function lInsertValue($key, $position, $pivot, $value){
+        return $this->redis->lInsert($key, $position, $pivot, $value);
+    }
+
+    /**
+     * 有序集合++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
+
+    /**
+     * 向有序集合添加数值
+     * @param $key
+     * @param $score_or_options
+     * @param ...$more_scores_and_mems
+     * @return false|int|\Redis
+     * @throws \RedisException
+     */
+    public  function zAddValue($key, $score_or_options, ...$more_scores_and_mems){
+        return $this->redis->zAdd($key, $score_or_options, ...$more_scores_and_mems);
+    }
+
+    /**
+     * 给集合成员增加固定的数值
+     * @param $key
+     * @param $value
+     * @param $member
+     * @return float|\Redis
+     * @throws \RedisException
+     */
+    public function zIncrByValue($key, $value, $member){
+        return $this->redis->zIncrBy($key, $value, $member);
+    }
+
+
+    /**
+     * 命令用于返回有序集的成员个数。
+     * @param $key
+     * @return false|int|\Redis
+     * @throws \RedisException
+     */
+    public function zCardValue($key){
+        return $this->redis->zCard($key);
+    }
+
+
+    /**
+     * 返回指定分数成员之间的数量
+     * @param $key
+     * @param $start
+     * @param $end
+     * @return false|int|\Redis
+     * @throws \RedisException
+     */
+    public function zCountValue($key, $start, $end){
+        return $this->redis->zCount($key, $start, $end);
+    }
+
+
+    /**
+     * 获取有序集数据
+     * @param $key
+     * @param $start
+     * @param $end
+     * @param null $withscores （是否具有得分）
+     * @return array
+     */
+    public function zRangeValue($key, $start, $end, $withscores = null)
+    {
+        return $this->redis->zRange($key, $start, $end, $withscores);
+    }
+
+
+    /**
+     * 删除有序集数据
+     * @param $key
+     * @param $member
+     * @return int
+     */
+    public function zRemValue($key,$member)
+    {
+        return $this->redis->zRem($key,$member);
+    }
+
+
+
 
 }
