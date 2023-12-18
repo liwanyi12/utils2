@@ -1,8 +1,9 @@
 <?php
 
 namespace Liwanyi\Utils2;
+use Workerman\Timer;
 use Workerman\Worker;
-class Timer
+class TimerClass
 {
     public function test(){
         $task = new Worker();
