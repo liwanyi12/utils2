@@ -288,6 +288,20 @@ class Redis
     }
 
     /**
+     * 通过分数获取指定数量
+     * @param $key
+     * @param $start
+     * @param $end
+     * @param array $options
+     * @return array|false|\Redis
+     * @throws \RedisException
+     */
+    public function zRangeValueByScore($key, $start, $end, array $options = [])
+    {
+        return $this->redis->zRangeByScore($key, $start, $end,  $options);
+    }
+
+    /**
      * 删除有序集数据
      * @param $key
      * @param $member
