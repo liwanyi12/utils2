@@ -17,7 +17,6 @@
     "minimum-stability": "dev",
     "require": {
         "php": "^7.0",
-        "ext-redis": "*",
-        "workerman/workerman": "4.1.x-dev"
+        "ext-redis": "*"
     }
 }
