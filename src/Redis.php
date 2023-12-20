@@ -13,7 +13,7 @@ class Redis
     public function connect()
     {
         $redis = new \Redis();
-        $redis->connect($this->config['host'], $this->config['port']);
+        $redis->connect($this->config['host'], (int)$this->config['port']);
         $redis->auth($this->config['auth']);
         return $redis;
     }
@@ -245,8 +245,8 @@ class Redis
      * @return float|\Redis
      * @throws \RedisException
      */
-    public function zIncrByValue($key, $value, $member){
-        return $this->redis->zIncrBy($key, $value, $member);
+    public function zIncrByValue($key,$member, $value){
+        return $this->redis->zIncrBy($key, (float)$value, $member);
     }
 
 
@@ -262,7 +262,20 @@ class Redis
 
 
     /**
-     * 返回指定分数成员之间的数量
+     * 从大到小排列
+     * @param $key
+     * @param $start
+     * @param $end
+     * @param $withscores
+     * @return array|\Redis
+     * @throws \RedisException
+     */
+    public function zRevRangeValue($key, $start, $end, $withscores = null){
+        return $this->redis->zRange($key, (int)$start, (int)$end, $withscores);
+    }
+
+    /**
+     * 返回指定分数成员之间的数量(查询指定范围数量）
      * @param $key
      * @param $start
      * @param $end
@@ -275,7 +288,7 @@ class Redis
 
 
     /**
-     * 获取有序集数据
+     * 获取有序集数据 （从小到大排序）
      * @param $key
      * @param $start
      * @param $end
@@ -284,11 +297,11 @@ class Redis
      */
     public function zRangeValue($key, $start, $end, $withscores = null)
     {
-        return $this->redis->zRange($key, $start, $end, $withscores);
+        return $this->redis->zRange($key, (int)$start, (int)$end, $withscores);
     }
 
     /**
-     * 通过分数获取指定数量
+     * 通过分数获取指定数量 (表示的分值区间 就是说 0-9  就是说 在0-9 分之间的人）
      * @param $key
      * @param $start
      * @param $end
