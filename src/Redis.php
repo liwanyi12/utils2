@@ -271,7 +271,7 @@ class Redis
      * @throws \RedisException
      */
     public function zRevRangeValue($key, $start, $end, $withscores = null){
-        return $this->redis->zRange($key, (int)$start, (int)$end, $withscores);
+        return $this->redis->zRevRange($key, (int)$start, (int)$end, $withscores);
     }
 
     /**
