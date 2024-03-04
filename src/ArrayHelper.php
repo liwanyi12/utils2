@@ -44,6 +44,12 @@ class ArrayHelper
     }
 
 
+    // 清理数组中重复的值
+    public function deleteArrayRepeatData(array $array,array $value)
+    {
+        return array_values(array_diff($array, $value));
+    }
+
 
 }
 
