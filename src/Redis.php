@@ -326,6 +326,32 @@ class Redis
     }
 
 
+    /**
+     *阻塞的方式 获取队列数据
+     * @param $key_or_keys
+     * @param $timeout_or_key
+     * @param ...$extra_args
+     * @return array|\Redis|true|null
+     * @throws \RedisException
+     */
+    public function brPop($key_or_keys, $timeout_or_key, ...$extra_args) {
+        return $this->redis->brPop($key_or_keys, $timeout_or_key, ...$extra_args);
+    }
+
+
+    /**
+     * 阻塞的方式 获取队列数据 (右)
+     * @param $key_or_keys
+     * @param $timeout_or_key
+     * @param ...$extra_args
+     * @return array|\Redis|true|null
+     * @throws \RedisException
+     */
+    public function blPop($key_or_keys, $timeout_or_key, ...$extra_args) {
+        return $this->redis->brPop($key_or_keys, $timeout_or_key, ...$extra_args);
+    }
+
+
 
 
 }

@@ -14,6 +14,12 @@ class StringHelper
         return md5(uniqid(md5(microtime(true)), true));
     }
 
+    public static function getLengthStr($length='')
+    {
+        if(empty($length)) $length=6;
+        $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklzxcvbnm";
+        return substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), $length);
+    }
 
 }
 
