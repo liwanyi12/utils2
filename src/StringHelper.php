@@ -14,6 +14,11 @@ class StringHelper
         return md5(uniqid(md5(microtime(true)), true));
     }
 
+    /**
+     * 获取指定长度随机字符串
+     * @param $length
+     * @return false|string
+     */
     public static function getLengthStr($length = '')
     {
         if (empty($length)) $length = 6;
@@ -24,12 +29,8 @@ class StringHelper
     // 判断是否包含字符串
     public static function isContainStrings(string $string, $contained)
     {
-        if (strpos($string, strval($contained)) === false) {
-            // 如果不存在执行此处代码
-            return false;
-        } else {
-            return true;
-        }
+        if (strpos($string, strval($contained)) === false) return false;
+        return true;
     }
 
     /**
@@ -48,16 +49,15 @@ class StringHelper
      * @param string $user_name 姓名
      * @param string $repeatStr 替换的字符
      * @param string $encode 字符编码
-     * @return string 格式化后的姓名
      */
-    public function hiddenNameString($user_name,  $repeatStr = '*', $encode = 'utf-8')
+    public function hiddenString($user_name, $repeatStr = '*', $encode = 'utf-8')
     {
         if (empty($user_name)) {
             return '***';
         }
-        $length     = mb_strlen($user_name,$encode);
-        $firstStr   = mb_substr($user_name, 0, 1, $encode);
-        $lastStr    = mb_substr($user_name, -1, 1, $encode);
+        $length = mb_strlen($user_name, $encode);
+        $firstStr = mb_substr($user_name, 0, 1, $encode);
+        $lastStr = mb_substr($user_name, -1, 1, $encode);
         return $length == 2 ? $firstStr . str_repeat($repeatStr, $length - 1) : $firstStr . str_repeat($repeatStr, $length - 2) . $lastStr;
     }
 

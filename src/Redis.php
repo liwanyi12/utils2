@@ -30,7 +30,7 @@ class Redis
 
     public function getValue($key)
     {
-        if(empty($key)){
+        if (empty($key)) {
             return '';
         }
         if (is_array($key)) {
@@ -43,7 +43,7 @@ class Redis
     // 当key 不存在的时候设置 否则设置失败
     public function setnx($key, $value)
     {
-        if(empty($key)){
+        if (empty($key)) {
             return '';
         }
         return $this->redis->setnx($key, $value);
@@ -53,7 +53,7 @@ class Redis
     public function remove($key)
     {
         // $key => "key1" || array('key1','key2')
-        if(empty($key)){
+        if (empty($key)) {
             return '';
         }
 
@@ -72,7 +72,7 @@ class Redis
      */
     public function lPushValue($key, ...$args)
     {
-        if(empty($key)){
+        if (empty($key)) {
             return '';
         }
 
@@ -88,7 +88,7 @@ class Redis
      */
     public function lPopValue($key)
     {
-        if(empty($key)){
+        if (empty($key)) {
             return '';
         }
         return $this->redis->lPop($key);
@@ -103,7 +103,7 @@ class Redis
      */
     public function rPushValue($key, ...$args)
     {
-        if(empty($key)){
+        if (empty($key)) {
             return '';
         }
         return $this->redis->rPush($key, ...$args);
@@ -217,7 +217,8 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function lInsertValue($key, $position, $pivot, $value){
+    public function lInsertValue($key, $position, $pivot, $value)
+    {
         return $this->redis->lInsert($key, $position, $pivot, $value);
     }
 
@@ -233,7 +234,8 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public  function zAddValue($key, $score_or_options, ...$more_scores_and_mems){
+    public function zAddValue($key, $score_or_options, ...$more_scores_and_mems)
+    {
         return $this->redis->zAdd($key, $score_or_options, ...$more_scores_and_mems);
     }
 
@@ -245,7 +247,8 @@ class Redis
      * @return float|\Redis
      * @throws \RedisException
      */
-    public function zIncrByValue($key,$member, $value){
+    public function zIncrByValue($key, $member, $value)
+    {
         return $this->redis->zIncrBy($key, (float)$value, $member);
     }
 
@@ -256,7 +259,8 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function zCardValue($key){
+    public function zCardValue($key)
+    {
         return $this->redis->zCard($key);
     }
 
@@ -270,7 +274,8 @@ class Redis
      * @return array|\Redis
      * @throws \RedisException
      */
-    public function zRevRangeValue($key, $start, $end, $withscores = null){
+    public function zRevRangeValue($key, $start, $end, $withscores = null)
+    {
         return $this->redis->zRevRange($key, (int)$start, (int)$end, $withscores);
     }
 
@@ -282,7 +287,8 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function zCountValue($key, $start, $end){
+    public function zCountValue($key, $start, $end)
+    {
         return $this->redis->zCount($key, $start, $end);
     }
 
@@ -311,7 +317,7 @@ class Redis
      */
     public function zRangeValueByScore($key, $start, $end, array $options = [])
     {
-        return $this->redis->zRangeByScore($key, $start, $end,  $options);
+        return $this->redis->zRangeByScore($key, $start, $end, $options);
     }
 
     /**
@@ -320,9 +326,9 @@ class Redis
      * @param $member
      * @return int
      */
-    public function zRemValue($key,$member)
+    public function zRemValue($key, $member)
     {
-        return $this->redis->zRem($key,$member);
+        return $this->redis->zRem($key, $member);
     }
 
 
@@ -334,7 +340,8 @@ class Redis
      * @return array|\Redis|true|null
      * @throws \RedisException
      */
-    public function brPop($key_or_keys, $timeout_or_key, ...$extra_args) {
+    public function brPop($key_or_keys, $timeout_or_key, ...$extra_args)
+    {
         return $this->redis->brPop($key_or_keys, $timeout_or_key, ...$extra_args);
     }
 
@@ -347,11 +354,100 @@ class Redis
      * @return array|\Redis|true|null
      * @throws \RedisException
      */
-    public function blPop($key_or_keys, $timeout_or_key, ...$extra_args) {
+    public function blPop($key_or_keys, $timeout_or_key, ...$extra_args)
+    {
         return $this->redis->brPop($key_or_keys, $timeout_or_key, ...$extra_args);
     }
 
 
+    //**********************
+    //集合内部使用的hash 所以 增加 删除 查找 的复杂度都是 （O1）
+    //******************************************************集合
 
+
+    /**
+     * 向集合中添加数据 （朋友圈点赞）
+     * @param $key
+     * @param $value
+     * @return bool|int
+     */
+    public function sAdd($key, $value)
+    {
+        return $this->redis->sAdd($key, ...$value);
+    }
+
+    /**
+     * 向集合中删除数据 (取消朋友圈点赞)
+     * @param $key
+     * @param $value
+     * @return bool|int
+     */
+    public function sRem($key, $value)
+    {
+        return $this->redis->sRem($key, ...$value);
+    }
+
+    /**
+     * 判断是否在集合中 （可用于是否点赞了该条朋友圈）
+     * @param $key
+     * @param $value
+     * @return bool
+     */
+    public function sIsMember($key, $value)
+    {
+        return $this->redis->sIsMember($key, $value);
+    }
+
+
+    /**
+     * 用于统计集合中数据的数量 （点赞统计）
+     * @param $key
+     * @return int
+     */
+    public function scard($key)
+    {
+        return $this->redis->scard($key);
+    }
+
+
+    /**
+     * 获取集合中的所有数据
+     * @param $key
+     * @return array
+     */
+    public function sMembers($key)
+    {
+        return $this->redis->sMembers($key);
+    }
+
+    /**
+     * 增加地理位置
+     * @param $key
+     * @param $log
+     * @param $lat
+     * @param $name
+     * @return false|int
+     */
+    public function addLocation($key, $log, $lat, $name)
+    {
+        if (!$key || !$log || !$lat || !$name) return false;
+        return $this->redis->geoadd($key, $log, $lat, $name);
+    }
+
+
+    /**
+     * 获取方圆内的地理位置
+     * @param $key    key
+     * @param $radius 方圆距离
+     * @param $member 指定用户
+     * @param $units  单位 (miles:英里  km:公里  m:米)
+     * @param $options
+     * @return array|false
+     */
+    public function geoRadiusByMembers($key, $member, $radius, $units, $options = null)
+    {
+        if (!$key || !$units || !$radius || !$member) return false;
+        return $this->redis->georadiusbymember($key, $member, $radius, $units, $options);
+    }
 
 }

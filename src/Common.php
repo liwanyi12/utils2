@@ -153,4 +153,21 @@ class Common
     {
         return date('Ymd') . substr(implode(null, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8);
     }
+
+    /**
+     * 根据经纬度计算两个距离
+     * @param $first_lng
+     * @param $first_lat
+     * @param $lng
+     * @param $lat
+     * @return string
+     */
+    public static function distance($first_lng,$first_lat, $lng, $lat) {
+        $earth_radius = 6371; // 地球半径，单位为公里
+        $delta_lng = deg2rad($lng - $first_lng);
+        $delta_lat = deg2rad($lat - $first_lat);
+        $a = sin($delta_lat / 2) * sin($delta_lat / 2) + cos(deg2rad($first_lng)) * cos(deg2rad($lat)) * sin($delta_lng / 2) * sin($delta_lng / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return number_format($earth_radius * $c,2,'.','');
+    }
 }
