@@ -444,7 +444,7 @@ class Redis
      * @param $options
      * @return array|false
      */
-    public function geoRadiusByMembers($key, $member, $radius, $units, $options = null)
+    public function geoRadiusByMembers($key, $member, $radius, $units, $options = [])
     {
         if (!$key || !$units || !$radius || !$member) return false;
         return $this->redis->georadiusbymember($key, $member, $radius, $units, $options);
