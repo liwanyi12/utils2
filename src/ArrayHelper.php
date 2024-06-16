@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Liwanyi\Utils2;
 
-use Cassandra\RetryPolicy;
 
 class ArrayHelper
 {
@@ -25,7 +24,7 @@ class ArrayHelper
      * @param string $string
      * @return string|string[]
      */
-    public static function explodeValue(string $separator, string $string)
+    public static function explodeValue(string $separator, string $string) : array
     {
         if (empty($data)) {
             return $string;
@@ -34,7 +33,7 @@ class ArrayHelper
         return explode($separator, $string);
     }
 
-    public static function implodeValue(array|string $separator = "", ?array $array)
+    public static function implodeValue(?array $array,array|string $separator = "", )
     {
         if (empty($array) || $array == '') {
             return $array;
@@ -44,10 +43,35 @@ class ArrayHelper
     }
 
 
-    // 清理数组中重复的值
-    public function deleteArrayRepeatData(array $array,array $value)
+    /**
+     * 清理数组中重复的值
+     * @param array $array
+     * @param array $value
+     * @return array
+     */
+    public function deleteArrayRepeatData(array $array,array $value):array
     {
         return array_values(array_diff($array, $value));
+    }
+
+
+    /**
+     * 根据二维数组中的某个字段进行排序
+     * @param array $array 二维数组
+     * @param string $key 排序依据的字段名
+     * @param string $type 排序类型，'asc' 为升序，'desc' 为降序
+     * @return array 排序后的数组
+     */
+    public static function arraySortByKey(array $array, string $key, string $type = 'asc'): array
+    {
+        usort($array, function ($a, $b) use ($key, $type) {
+            if ($a[$key] == $b[$key]) {
+                return 0;
+            }
+            return ($type === 'asc') ? ($a[$key] < $b[$key] ? -1 : 1) : ($a[$key] > $b[$key] ? -1 : 1);
+        });
+
+        return $array;
     }
 
 
