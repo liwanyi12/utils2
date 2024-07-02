@@ -19,7 +19,7 @@ class Redis
     }
 
     // 设置key
-    public function setValue($key, $value, $expire = 0)
+    public function setValue(string $key, mixed $value, $expire = 0)
     {
         if ($expire == 0) {
             return $this->redis->set($key, $value);
@@ -28,7 +28,7 @@ class Redis
         }
     }
 
-    public function getValue($key)
+    public function getValue(string $key)
     {
         if (empty($key)) {
             return '';
@@ -41,7 +41,7 @@ class Redis
 
 
     // 当key 不存在的时候设置 否则设置失败
-    public function setnx($key, $value)
+    public function setnx(string $key, mixed $value)
     {
         if (empty($key)) {
             return '';
@@ -50,7 +50,7 @@ class Redis
     }
 
     // 删除缓存
-    public function remove($key)
+    public function remove(string $key)
     {
         // $key => "key1" || array('key1','key2')
         if (empty($key)) {
@@ -70,7 +70,7 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function lPushValue($key, ...$args)
+    public function lPushValue(string $key, mixed ...$args)
     {
         if (empty($key)) {
             return '';
@@ -86,7 +86,7 @@ class Redis
      * @return bool|mixed|\Redis
      * @throws \RedisException
      */
-    public function lPopValue($key)
+    public function lPopValue(string $key)
     {
         if (empty($key)) {
             return '';
@@ -101,7 +101,7 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function rPushValue($key, ...$args)
+    public function rPushValue(string $key, mixed ...$args)
     {
         if (empty($key)) {
             return '';
@@ -116,7 +116,7 @@ class Redis
      * @return bool|mixed|\Redis
      * @throws \RedisException
      */
-    public function rPopValue($key)
+    public function rPopValue(string $key)
     {
         if (empty($key)) {
             return '';
@@ -131,7 +131,7 @@ class Redis
      * @return bool|int|\Redis
      * @throws \RedisException
      */
-    public function lLenList($list_name)
+    public function lLenList(string $list_name)
     {
         if (empty($list_name)) {
             return '';
@@ -148,7 +148,7 @@ class Redis
      * @return array|\Redis|string
      * @throws \RedisException
      */
-    public function lRangeValue($list_name, $start = 0, $end = -1)
+    public function lRangeValue(string $list_name,int $start = 0,int $end = -1)
     {
         if (empty($list_name)) {
             return '';
@@ -165,7 +165,7 @@ class Redis
      * @return bool|int|\Redis
      * @throws \RedisException
      */
-    public function lRemValue($key, $value, $count = 0)
+    public function lRemValue(string $key, string $value,int $count = 0)
     {
         if (!$key || empty($value)) {
             return '';
@@ -183,7 +183,7 @@ class Redis
      * @return bool|\Redis|string
      * @throws \RedisException
      */
-    public function lSetValue($key, $value, $index = 0)
+    public function lSetValue(string $key, string $value,int $index = 0)
     {
         if (!$key || empty($value)) {
             return '';
@@ -199,7 +199,7 @@ class Redis
      * @return array|false|\Redis
      * @throws \RedisException
      */
-    public function lLTrim($list_name, $start, $end)
+    public function lLTrim(string $list_name,int $start, int $end)
     {
         if (empty($list_name) || empty($start) || empty($end)) {
             return '';
@@ -217,7 +217,7 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function lInsertValue($key, $position, $pivot, $value)
+    public function lInsertValue(string $key,int $position, string $pivot, mixed $value)
     {
         return $this->redis->lInsert($key, $position, $pivot, $value);
     }
@@ -234,7 +234,7 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function zAddValue($key, $score_or_options, ...$more_scores_and_mems)
+    public function zAddValue(string $key, $score_or_options, ...$more_scores_and_mems)
     {
         return $this->redis->zAdd($key, $score_or_options, ...$more_scores_and_mems);
     }
@@ -247,7 +247,7 @@ class Redis
      * @return float|\Redis
      * @throws \RedisException
      */
-    public function zIncrByValue($key, $member, $value)
+    public function zIncrByValue(string $key,float $member,string $value)
     {
         return $this->redis->zIncrBy($key, (float)$value, $member);
     }
@@ -259,7 +259,7 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function zCardValue($key)
+    public function zCardValue(string $key)
     {
         return $this->redis->zCard($key);
     }
@@ -274,7 +274,7 @@ class Redis
      * @return array|\Redis
      * @throws \RedisException
      */
-    public function zRevRangeValue($key, $start, $end, $withscores = null)
+    public function zRevRangeValue(string $key,int $start,int $end,bool $withscores = null)
     {
         return $this->redis->zRevRange($key, (int)$start, (int)$end, $withscores);
     }
@@ -287,7 +287,7 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function zCountValue($key, $start, $end)
+    public function zCountValue(string $key,int $start,int $end)
     {
         return $this->redis->zCount($key, $start, $end);
     }
@@ -301,7 +301,7 @@ class Redis
      * @param null $withscores （是否具有得分）
      * @return array
      */
-    public function zRangeValue($key, $start, $end, $withscores = null)
+    public function zRangeValue(string $key,int $start, int $end,bool $withscores = null)
     {
         return $this->redis->zRange($key, (int)$start, (int)$end, $withscores);
     }
@@ -315,7 +315,7 @@ class Redis
      * @return array|false|\Redis
      * @throws \RedisException
      */
-    public function zRangeValueByScore($key, $start, $end, array $options = [])
+    public function zRangeValueByScore(string $key, int $start, int $end, array $options = [])
     {
         return $this->redis->zRangeByScore($key, $start, $end, $options);
     }
@@ -326,7 +326,7 @@ class Redis
      * @param $member
      * @return int
      */
-    public function zRemValue($key, $member)
+    public function zRemValue(string $key,mixed $member)
     {
         return $this->redis->zRem($key, $member);
     }
@@ -340,7 +340,7 @@ class Redis
      * @return array|\Redis|true|null
      * @throws \RedisException
      */
-    public function brPop($key_or_keys, $timeout_or_key, ...$extra_args)
+    public function brPop(array $key_or_keys, $timeout_or_key, ...$extra_args)
     {
         return $this->redis->brPop($key_or_keys, $timeout_or_key, ...$extra_args);
     }
@@ -354,7 +354,7 @@ class Redis
      * @return array|\Redis|true|null
      * @throws \RedisException
      */
-    public function blPop($key_or_keys, $timeout_or_key, ...$extra_args)
+    public function blPop(array $key_or_keys, $timeout_or_key, ...$extra_args)
     {
         return $this->redis->brPop($key_or_keys, $timeout_or_key, ...$extra_args);
     }
@@ -371,7 +371,7 @@ class Redis
      * @param $value
      * @return bool|int
      */
-    public function sAdd($key, $value)
+    public function sAdd(string $key,mixed $value)
     {
         return $this->redis->sAdd($key, ...$value);
     }
@@ -382,7 +382,7 @@ class Redis
      * @param $value
      * @return bool|int
      */
-    public function sRem($key, $value)
+    public function sRem(string $key, mixed $value)
     {
         return $this->redis->sRem($key, ...$value);
     }
@@ -393,7 +393,7 @@ class Redis
      * @param $value
      * @return bool
      */
-    public function sIsMember($key, $value)
+    public function sIsMember(string $key,mixed $value)
     {
         return $this->redis->sIsMember($key, $value);
     }
@@ -404,7 +404,7 @@ class Redis
      * @param $key
      * @return int
      */
-    public function scard($key)
+    public function scard(string $key)
     {
         return $this->redis->scard($key);
     }
@@ -415,7 +415,7 @@ class Redis
      * @param $key
      * @return array
      */
-    public function sMembers($key)
+    public function sMembers(string $key)
     {
         return $this->redis->sMembers($key);
     }
@@ -428,7 +428,7 @@ class Redis
      * @param $name
      * @return false|int
      */
-    public function addLocation($key, $log, $lat, $name)
+    public function addLocation(string $key, string $log,string $lat,string $name)
     {
         if (!$key || !$log || !$lat || !$name) return false;
         return $this->redis->geoadd($key, $log, $lat, $name);
@@ -444,7 +444,7 @@ class Redis
      * @param $options
      * @return array|false
      */
-    public function geoRadiusByMembers($key, $member, $radius, $units, $options = [])
+    public function geoRadiusByMembers(string $key, string $member, string $radius, string $units, $options = [])
     {
         if (!$key || !$units || !$radius || !$member) return false;
         return $this->redis->georadiusbymember($key, $member, $radius, $units, $options);
