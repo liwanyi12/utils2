@@ -19,9 +19,6 @@ class Test{
         ];
     }
 }
-$result = (new Test())->test();
-Utils2\ArrayHelper::arraySortByKey($result,'price',SORT_DESC);
-print_r($result);
 
 
 

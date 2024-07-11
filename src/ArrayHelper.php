@@ -24,7 +24,7 @@ class ArrayHelper
      * @param string $string
      * @return string|string[]
      */
-    public static function explodeValue(string $separator, string $string) : array
+    public static function explodeValue(string $separator, string $string): array
     {
         if (empty($data)) {
             return $string;
@@ -33,7 +33,7 @@ class ArrayHelper
         return explode($separator, $string);
     }
 
-    public static function implodeValue(?array $array,array|string $separator = "", )
+    public static function implodeValue(?array $array, array|string $separator = "",)
     {
         if (empty($array) || $array == '') {
             return $array;
@@ -49,7 +49,7 @@ class ArrayHelper
      * @param array $value
      * @return array
      */
-    public function deleteArrayRepeatData(array $array,array $value):array
+    public function deleteArrayRepeatData(array $array, array $value): array
     {
         return array_values(array_diff($array, $value));
     }
@@ -74,6 +74,25 @@ class ArrayHelper
         return $array;
     }
 
+
+    /**
+     * 根据二维数组中的某个字段进行分组
+     * @param array $results 二维数组数据
+     * @param string $field 分组依据的字段
+     * @return array 分组后的结果
+     */
+    public function groupByField(array $results, string $field): array
+    {
+        $groupedData = [];
+        foreach ($results as $record) {
+            $key = $record[$field];
+            if (!isset($groupedData[$key])) {
+                $groupedData[$key] = [];
+            }
+            $groupedData[$key][] = $record;
+        }
+        return $groupedData;
+    }
 
 }
 
