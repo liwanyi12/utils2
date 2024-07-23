@@ -28,6 +28,17 @@ class Redis
         }
     }
 
+    /**
+     *  判断key 是否存在
+     * @param string $key
+     * @return bool|int
+     */
+    public function isExist(string $key)
+    {
+        return $this->redis->exists($key);
+    }
+
+
     public function getValue(string $key)
     {
         if (empty($key)) {
@@ -148,7 +159,7 @@ class Redis
      * @return array|\Redis|string
      * @throws \RedisException
      */
-    public function lRangeValue(string $list_name,int $start = 0,int $end = -1)
+    public function lRangeValue(string $list_name, int $start = 0, int $end = -1)
     {
         if (empty($list_name)) {
             return '';
@@ -165,7 +176,7 @@ class Redis
      * @return bool|int|\Redis
      * @throws \RedisException
      */
-    public function lRemValue(string $key, string $value,int $count = 0)
+    public function lRemValue(string $key, string $value, int $count = 0)
     {
         if (!$key || empty($value)) {
             return '';
@@ -183,7 +194,7 @@ class Redis
      * @return bool|\Redis|string
      * @throws \RedisException
      */
-    public function lSetValue(string $key, string $value,int $index = 0)
+    public function lSetValue(string $key, string $value, int $index = 0)
     {
         if (!$key || empty($value)) {
             return '';
@@ -199,7 +210,7 @@ class Redis
      * @return array|false|\Redis
      * @throws \RedisException
      */
-    public function lLTrim(string $list_name,int $start, int $end)
+    public function lLTrim(string $list_name, int $start, int $end)
     {
         if (empty($list_name) || empty($start) || empty($end)) {
             return '';
@@ -217,7 +228,7 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function lInsertValue(string $key,int $position, string $pivot, mixed $value)
+    public function lInsertValue(string $key, int $position, string $pivot, mixed $value)
     {
         return $this->redis->lInsert($key, $position, $pivot, $value);
     }
@@ -247,11 +258,23 @@ class Redis
      * @return float|\Redis
      * @throws \RedisException
      */
-    public function zIncrByValue(string $key,float $member,string $value)
+    public function zIncrByValue(string $key, float $member, string $value)
     {
         return $this->redis->zIncrBy($key, (float)$value, $member);
     }
 
+    /**
+     * 计算给定的一个或多个有序集的交集并将结果集存储在新的有序集合 key 中
+     * @param $Output
+     * @param $ZSetKeys
+     * @param array|null $Weights
+     * @param $aggregateFunction
+     * @return null
+     */
+    public function zInter(string $Output, array $ZSetKeys, array|null $Weights = null, string $aggregateFunction = 'SUM')
+    {
+        return $this->redis->zInterStore($Output, $ZSetKeys,$Weights, $aggregateFunction);
+    }
 
     /**
      * 命令用于返回有序集的成员个数。
@@ -264,6 +287,41 @@ class Redis
         return $this->redis->zCard($key);
     }
 
+    /**
+     * 集合的合并
+     * @param string $key
+     * @param ...$otherKeys
+     * @return array
+     */
+    public function sUnionKeys(string $key, ...$otherKeys)
+    {
+        return $this->redis->sUnion($key, $otherKeys);
+    }
+
+    /**
+     * 所有给定集合的并集存储在 destination 集合中
+     * @param string $dstKey
+     * @param string $key1
+     * @param string ...$otherKeys
+     * @return int
+     */
+    public function sUnionStore(string $dstKey, string $key1,string ...$otherKeys)
+    {
+        return $this->redis->sUnionStore($dstKey, $key1, $otherKeys);
+    }
+
+    /**
+     * 迭代集合中的元素
+     * @param $key
+     * @param $iterator
+     * @param $pattern
+     * @param $count
+     * @return array|bool
+     */
+    public function SSCAN($key, &$iterator, $pattern = null, $count = 0)
+    {
+        return $this->redis->SSCAN($key, $iterator, $pattern, $count);
+    }
 
     /**
      * 从大到小排列
@@ -274,7 +332,7 @@ class Redis
      * @return array|\Redis
      * @throws \RedisException
      */
-    public function zRevRangeValue(string $key,int $start,int $end,bool $withscores = null)
+    public function zRevRangeValue(string $key, int $start, int $end, bool $withscores = null)
     {
         return $this->redis->zRevRange($key, (int)$start, (int)$end, $withscores);
     }
@@ -287,7 +345,7 @@ class Redis
      * @return false|int|\Redis
      * @throws \RedisException
      */
-    public function zCountValue(string $key,int $start,int $end)
+    public function zCountValue(string $key, int $start, int $end)
     {
         return $this->redis->zCount($key, $start, $end);
     }
@@ -301,7 +359,7 @@ class Redis
      * @param null $withscores （是否具有得分）
      * @return array
      */
-    public function zRangeValue(string $key,int $start, int $end,bool $withscores = null)
+    public function zRangeValue(string $key, int $start, int $end, bool $withscores = null)
     {
         return $this->redis->zRange($key, (int)$start, (int)$end, $withscores);
     }
@@ -326,7 +384,7 @@ class Redis
      * @param $member
      * @return int
      */
-    public function zRemValue(string $key,mixed $member)
+    public function zRemValue(string $key, mixed $member)
     {
         return $this->redis->zRem($key, $member);
     }
@@ -356,10 +414,66 @@ class Redis
      */
     public function blPop(array $key_or_keys, $timeout_or_key, ...$extra_args)
     {
-        return $this->redis->brPop($key_or_keys, $timeout_or_key, ...$extra_args);
+        return $this->redis->blPop($key_or_keys, $timeout_or_key, ...$extra_args);
     }
 
+    /**
+     * 从列表中弹出一个值，并将该值插入到另外一个列表中并返回它
+     * @param string $srcKey
+     * @param string $dstKey
+     * @param int $timeout
+     * @return bool|mixed|string
+     */
+    public function brpoplpush(string $srcKey, string $dstKey, int $timeout)
+    {
+        return $this->redis->brpoplpush($srcKey, $dstKey, $timeout);
+    }
 
+    /**
+     * 通过索引获取列表中的元素
+     * @param string $key
+     * @param int $index
+     * @return bool|mixed
+     */
+    public function lIndex(string $key, int $index)
+    {
+        return $this->redis->lIndex($key, $index);
+    }
+
+    /**
+     * 在列表的元素前或者后插入元素
+     * @param string $key
+     * @param int $position Redis::BEFORE | Redis::AFTER
+     * @param string $pivot
+     * @param mixed $value
+     * @return int
+     */
+    public function lInsert(string $key, int $position , string $pivot, mixed $value)
+    {
+        return $this->redis->lInsert($key, $position, $pivot, $value);
+    }
+
+    /**
+     * 对一个列表进行修剪(trim)
+     * @param string $key
+     * @param int $start
+     * @param int $stop
+     * @return array|bool
+     */
+    public function lTrim(string $key, int $start,int $stop)
+    {
+        return $this->redis->lTrim($key, $start, $stop);
+    }
+
+    /**
+     * 为已存在的列表添加值
+     * @param $key
+     * @return bool|mixed
+     */
+    public function rPushx(string $key,mixed $value)
+    {
+        return $this->redis->rPushx($key, $value);
+    }
     //**********************
     //集合内部使用的hash 所以 增加 删除 查找 的复杂度都是 （O1）
     //******************************************************集合
@@ -371,7 +485,7 @@ class Redis
      * @param $value
      * @return bool|int
      */
-    public function sAdd(string $key,mixed $value)
+    public function sAdd(string $key, mixed $value)
     {
         return $this->redis->sAdd($key, ...$value);
     }
@@ -393,7 +507,7 @@ class Redis
      * @param $value
      * @return bool
      */
-    public function sIsMember(string $key,mixed $value)
+    public function sIsMember(string $key, mixed $value)
     {
         return $this->redis->sIsMember($key, $value);
     }
@@ -409,6 +523,81 @@ class Redis
         return $this->redis->scard($key);
     }
 
+    /**
+     * 返回给定所有集合的差集
+     * @param string $key
+     * @param string ...$otherKeys
+     * @return array
+     */
+    public function sdiff(string $key,string ...$otherKeys)
+    {
+        return $this->redis->sDiff($key,$otherKeys);
+    }
+
+    /**
+     * 返回给定所有集合的差集并存储在 新的集合 中
+     * @param string $dstKey
+     * @param string $key1
+     * @param string ...$otherKeys
+     * @return bool|int
+     */
+    public function sdiffStore(string $dstKey, string $key1,string  ...$otherKeys)
+    {
+        return $this->redis->sDiffStore($dstKey, $key1, $otherKeys);
+    }
+
+    /**
+     * 返回给定所有集合的交集
+     * @param $key1
+     * @param ...$otherKeys
+     * @return array
+     */
+    public function sinter($key1, ...$otherKeys)
+    {
+        return $this->redis->sInter($key1, $otherKeys);
+    }
+
+    /*
+     * 返回给定所有集合的交集并存储在 新的集合 中
+     */
+    public function sinterStore(string $dstKey,string $key1,string ...$otherKeys)
+    {
+        return $this->redis->sinterStore($dstKey,$key1, $otherKeys);
+    }
+
+    /**
+     * 将 member 元素从 source 集合移动到 destination 集合
+     * @param string $srcKey
+     * @param string $dstKey
+     * @param string $member
+     * @return bool
+     */
+    public function sMove(string $srcKey, string $dstKey, mixed $member)
+    {
+        return $this->redis->sMove($srcKey, $dstKey, $member);
+    }
+
+    /**
+     * 移除并返回集合中的一个随机元素
+     * @param string $key
+     * @param int $count
+     * @return array|bool|mixed|string
+     */
+    public function sPop(string $key, int $count=1)
+    {
+        return $this->redis->sPop($key, $count);
+    }
+
+    /**
+     * 返回集合中一个或多个随机数
+     * @param string $key
+     * @param int $count
+     * @return array|bool|mixed|string
+     */
+    public function sRandMember(string $key, int $count = 1)
+    {
+        return $this->redis->sRandMember($key, $count);
+    }
 
     /**
      * 获取集合中的所有数据
@@ -428,7 +617,7 @@ class Redis
      * @param $name
      * @return false|int
      */
-    public function addLocation(string $key, string $log,string $lat,string $name)
+    public function addLocation(string $key, string $log, string $lat, string $name)
     {
         if (!$key || !$log || !$lat || !$name) return false;
         return $this->redis->geoadd($key, $log, $lat, $name);
@@ -449,5 +638,14 @@ class Redis
         if (!$key || !$units || !$radius || !$member) return false;
         return $this->redis->georadiusbymember($key, $member, $radius, $units, $options);
     }
+
+    /**
+     * 哈希
+     */
+    public function hset(string $key, string $field, string $value)
+    {
+        return $this->redis->hset($key, $field, $value);
+    }
+
 
 }
