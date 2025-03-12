@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Liwanyi\\Utils2\\": "src/"
+            "Liwanyi\\Utils2\\": "src/" 
         }
     },
     "authors": [
@@ -14,9 +14,9 @@
             "email": "3357702725@qq.com"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "dev", 
     "require": {
         "php": "^7.0",
-        "ext-redis": "*"
+        "ext-redis": "*" 
     }
 }

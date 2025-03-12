@@ -9,11 +9,13 @@ class ArrayHelper
 
     /**
      * 获取数组第一个值  reset() array_values($arr)[0] Arr::first() 都可以获取到第一个数组的值
-     * @param object|array $data
-     * @return mixed
      */
-    public static function getFirstValue(object|array $data): mixed
+    public static function getFirstValue($data)
     {
+        if (!is_array($data) && !is_object($data)) {
+            throw new \InvalidArgumentException('Input must be an array or an object.');
+        }
+
         return reset($data);
     }
 
@@ -33,10 +35,25 @@ class ArrayHelper
         return explode($separator, $string);
     }
 
-    public static function implodeValue(?array $array, array|string $separator = "",)
+    public static function implodeValue($array, $separator = "")
     {
-        if (empty($array) || $array == '') {
+        if (empty($array)) {
             return $array;
+        }
+
+        // 检查 $array 是否为数组
+        if (!is_array($array)) {
+            throw new \InvalidArgumentException('The first argument must be an array or null.');
+        }
+
+        // 检查 $separator 是否为字符串或数组
+        if (!is_string($separator) && !is_array($separator)) {
+            throw new \InvalidArgumentException('The separator must be a string or an array.');
+        }
+
+        // 如果 $separator 是数组，将其转换为字符串
+        if (is_array($separator)) {
+            $separator = implode('', $separator);
         }
 
         return implode($separator, $array);
