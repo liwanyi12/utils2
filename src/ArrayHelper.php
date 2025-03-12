@@ -94,6 +94,27 @@ class ArrayHelper
         return $groupedData;
     }
 
+    /**
+     * 从二维数组中获取某个字段最小值
+     * @param array $array
+     * @param string $field
+     * @return mixed
+     */
+
+    public function getMinValueFromArray(array $array, string $field) {
+        if (empty($array)) {
+            return [];
+        }
+
+        $array = array_column($array, $field);
+
+        if (empty($array)) {
+            return [];
+        }
+
+        return min($array);
+    }
+
 }
 
 
