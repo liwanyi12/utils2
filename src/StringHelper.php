@@ -19,14 +19,14 @@ class StringHelper
      * @param int $length
      * @return string
      */
-    public static function getLengthStr(int $length = 6): string // 修改为 int 类型
+    public static function getLengthStr(int $length = 6): string
     {
         $strs = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklzxcvbnm";
         return substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), $length);
     }
 
     // 判断是否包含字符串
-    public static function isContainStrings(string $string, $contained): bool // 添加返回类型
+    public static function isContainStrings(string $string, $contained): bool
     {
         return strpos($string, strval($contained)) !== false; // 简化返回
     }
@@ -36,7 +36,7 @@ class StringHelper
      * @param string $string
      * @return array
      */
-    public static function explodeString(string $string): array // 修改为 static
+    public static function explodeString(string $string): array
     {
         return preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
     }
@@ -48,7 +48,7 @@ class StringHelper
      * @param string $encode 字符编码
      * @return string
      */
-    public static function hiddenString(string $user_name, string $repeatStr = '*', string $encode = 'utf-8'): string // 修改为 static
+    public static function hiddenString(string $user_name, string $repeatStr = '*', string $encode = 'utf-8'): string
     {
         if (empty($user_name)) {
             return '***';
@@ -57,5 +57,21 @@ class StringHelper
         $firstStr = mb_substr($user_name, 0, 1, $encode);
         $lastStr = mb_substr($user_name, -1, 1, $encode);
         return $length == 2 ? $firstStr . str_repeat($repeatStr, $length - 1) : $firstStr . str_repeat($repeatStr, $length - 2) . $lastStr;
+    }
+
+    /**
+     * 根据指定字符切割字符串为数组
+     *
+     * @param string $string 要切割的字符串
+     * @param string $delimiter 分隔符
+     * @return array 切割后的数组
+     */
+    public static function splitStringByDelimiter($string, $delimiter)
+    {
+        if (empty($string)) {
+            return [];
+        }
+
+        return explode($delimiter, $string);
     }
 }
