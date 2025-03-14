@@ -676,4 +676,137 @@ class Redis
     }
 
 
+    /**
+     * 添加或更新成员的分数
+     *
+     * @param string $member 成员名称
+     * @param float $score 分数
+     * @param int|null $expireDay 日榜过期时间（秒）
+     * @param int|null $expireWeek 周榜过期时间（秒）
+     * @param int|null $expireMonth 月榜过期时间（秒）
+     * @return bool 是否成功
+     */
+    public function addScore(
+        string $member,
+        float $score,
+        ?int $expireDay = 604800,    // 默认 7 天
+        ?int $expireWeek = 2592000,  // 默认 30 天
+        ?int $expireMonth = 31536000 // 默认 365 天
+    ): bool {
+        if (!$member) {
+            return false;
+        }
+
+        try {
+            // 总榜 key
+            $totalKey = 'total_rank';
+
+            // 日榜 key（如 "day_rank_2023_10_05"）
+            $dayKey = 'day_rank_' . date('Y_m_d');
+
+            // 周榜 key（如 "week_rank_2023_W40"）
+            $weekKey = 'week_rank_' . date('Y_W');
+
+            // 月榜 key（如 "month_rank_2023_10"）
+            $monthKey = 'month_rank_' . date('Y_m');
+
+            // 更新总榜、日榜、周榜和月榜的分数
+            $this->redis->zadd($totalKey, $score, $member);
+            $this->redis->zadd($dayKey, $score, $member);
+            $this->redis->zadd($weekKey, $score, $member);
+            $this->redis->zadd($monthKey, $score, $member);
+
+            // 设置过期时间
+            if ($expireDay !== null) {
+                $this->redis->expire($dayKey, $expireDay);
+            }
+            if ($expireWeek !== null) {
+                $this->redis->expire($weekKey, $expireWeek);
+            }
+            if ($expireMonth !== null) {
+                $this->redis->expire($monthKey, $expireMonth);
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            error_log("Redis ZADD failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 获取排行榜
+     *
+     * @param string $type 榜单类型（total: 总榜, month: 月榜, week: 周榜, day: 日榜）
+     * @param int $topN 返回前 N 名
+     * @return array 返回排行榜数据
+     */
+    public function getRank(string $type, int $topN = 10): array
+    {
+        try {
+            // 根据类型生成 key
+            switch ($type) {
+                case 'total':
+                    $key = 'total_rank';
+                    break;
+                case 'month':
+                    $key = 'month_rank_' . date('Y_m');
+                    break;
+                case 'week':
+                    $key = 'week_rank_' . date('Y_W');
+                    break;
+                case 'day':
+                    $key = 'day_rank_' . date('Y_m_d');
+                    break;
+                default:
+                    return [];
+            }
+
+            // 使用 ZREVRANGE 获取前 N 名的成员及其分数
+            return $this->redis->zrevrange($key, 0, $topN - 1, true);
+        } catch (\Exception $e) {
+            error_log("Redis ZREVRANGE failed: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * 获取成员的排名
+     *
+     * @param string $type 榜单类型（total: 总榜, month: 月榜, week: 周榜, day: 日榜）
+     * @param string $member 成员名称
+     * @return int|false 返回排名（从 0 开始），失败时返回 false
+     */
+    public function getMemberRank(string $type, string $member)
+    {
+        if (!$member) {
+            return false;
+        }
+
+        try {
+            // 根据类型生成 key
+            switch ($type) {
+                case 'total':
+                    $key = 'total_rank';
+                    break;
+                case 'month':
+                    $key = 'month_rank_' . date('Y_m');
+                    break;
+                case 'week':
+                    $key = 'week_rank_' . date('Y_W');
+                    break;
+                case 'day':
+                    $key = 'day_rank_' . date('Y_m_d');
+                    break;
+                default:
+                    return false;
+            }
+
+            // 使用 ZREVRANK 获取成员的排名
+            return $this->redis->zrevrank($key, $member);
+        } catch (\Exception $e) {
+            error_log("Redis ZREVRANK failed: " . $e->getMessage());
+            return false;
+        }
+    }
 }
