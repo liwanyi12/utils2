@@ -265,15 +265,26 @@ class Redis
 
     /**
      * 计算给定的一个或多个有序集的交集并将结果集存储在新的有序集合 key 中
-     * @param $Output
-     * @param $ZSetKeys
-     * @param array|null $Weights
-     * @param $aggregateFunction
-     * @return null
+     *
+     * @param string $Output 存储结果的有序集合的 key
+     * @param array $ZSetKeys 需要计算交集的有序集合的 key 数组
+     * @param array|null $Weights 可选，权重数组，用于对每个有序集合进行加权
+     * @param string $aggregateFunction 可选，聚合函数，默认为 'SUM'
+     * @return int|null 返回结果集合中的元素数量，失败时返回 null
      */
-    public function zInter(string $Output, array $ZSetKeys, array|null $Weights = null, string $aggregateFunction = 'SUM')
+    public function zInter(string $Output, array $ZSetKeys, ?array $Weights = null, string $aggregateFunction = 'SUM'): ?int
     {
-        return $this->redis->zInterStore($Output, $ZSetKeys,$Weights, $aggregateFunction);
+        try {
+            $weights = $Weights ?? [];
+
+            $result = $this->redis->zInterStore($Output, $ZSetKeys, $weights, $aggregateFunction);
+
+            return $result !== false ? $result : null;
+        } catch (\Exception $e) {
+            // 捕获异常并记录错误日志
+            error_log("Redis zInterStore failed: " . $e->getMessage());
+            return null;
+        }
     }
 
     /**
