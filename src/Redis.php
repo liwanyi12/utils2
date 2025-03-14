@@ -634,6 +634,23 @@ class Redis
         return $this->redis->geoadd($key, $log, $lat, $name);
     }
 
+    /**
+     * 获取两个成员之间的距离
+     * @param string $key Redis 的 key
+     * @param string $member1 第一个成员名称
+     * @param string $member2 第二个成员名称
+     * @param string $unit 距离单位（m: 米, km: 千米, mi: 英里, ft: 英尺）
+     * @return false|float 返回距离，失败时返回 false
+     */
+    public function getDistance(string $key, string $member1, string $member2, string $unit = 'm')
+    {
+        if (!$key || !$member1 || !$member2) {
+            return false;
+        }
+        $distance = $this->redis->geodist($key, $member1, $member2, $unit);
+        return $distance !== false ? (float)$distance : false;
+    }
+
 
     /**
      * 获取方圆内的地理位置
