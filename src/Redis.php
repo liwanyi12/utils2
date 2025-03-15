@@ -809,4 +809,27 @@ class Redis
             return false;
         }
     }
+
+
+    /**
+     * 获取排行榜及用户排名
+     *
+     * @param string $key 有序集合的 key
+     * @param string $member 成员名称
+     * @param int $topN 返回前 N 名
+     * @return array 返回排行榜数据及用户排名
+     */
+    public function getRankWithUserRank(string $key, string $member, int $topN = 10): array
+    {
+        // 获取排行榜数据
+        $rankData = $this->getRank($key, $topN);
+
+        // 获取用户排名
+        $userRank = $this->getMemberRank($key, $member);
+
+        return [
+            'data' => $rankData,
+            'user_rank' => $userRank !== false ? $userRank + 1 : null // 排名从 1 开始
+        ];
+    }
 }
