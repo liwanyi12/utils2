@@ -4,6 +4,7 @@ namespace Liwanyi\Utils2\test;
 // 一定要进行加载引入
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use Liwanyi\Utils2\Json;
 use Liwanyi\Utils2\Redis;
 
 class Test
@@ -11,13 +12,11 @@ class Test
 
     public function test()
     {
-        $config = [
-            'host' => '0.0.0.0',
-            'port' => 6379,
-            'auth' => 'jiaolianAAA'
-        ];
-        $this->serve = (new Redis($config));
-        return $this->serve ->getDistance('geo_key', 1, 2);
+        $data ="[{&quot;name&quot;:&quot;周一&quot;,&quot;id&quot;:1,&quot;time&quot;:[{&quot;start&quot;:&quot;04:05&quot;,&quot;end&quot;:&quot;23:05&quot;}]},{&quot;name&quot;:&quot;周二&quot;,&quot;id&quot;:2,&quot;time&quot;:[{&quot;start&quot;:&quot;00:05&quot;,&quot;end&quot;:&quot;23:07&quot;}]},{&quot;name&quot;:&quot;周三&quot;,&quot;id&quot;:3,&quot;time&quot;:[]},{&quot;name&quot;:&quot;周四&quot;,&quot;id&quot;:4,&quot;time&quot;:[]},{&quot;name&quot;:&quot;周五&quot;,&quot;id&quot;:5,&quot;time&quot;:[]},{&quot;name&quot;:&quot;周六&quot;,&quot;id&quot;:6,&quot;time&quot;:[]},{&quot;name&quot;:&quot;周日&quot;,&quot;id&quot;:7,&quot;time&quot;:[]}]";
+
+        $result =  (new Json())
+            ->getJsonValue($data);
+        var_dump($result);
     }
 
 //    public function ToPay($config = [], $total_price = 0, $notify_url = '', $return_url = '', $ssl_cer = '', $ssl_key = '', $cache_path = './backup',)
