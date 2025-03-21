@@ -19,7 +19,7 @@ class Redis
     }
 
     // 设置key
-    public function setValue(string $key, mixed $value, $expire = 0)
+    public function setValue(string $key, $value, $expire = 0)
     {
         if ($expire == 0) {
             return $this->redis->set($key, $value);
