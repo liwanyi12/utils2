@@ -151,7 +151,13 @@ class Common
      */
     public static function createOrderNo()
     {
-        return date('Ymd') . substr(implode(null, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8);
+        $datePart = date('Ymd');
+
+        $microtime = microtime(true); // 获取当前时间戳（带微秒）
+        $randomPart = mt_rand(1000, 9999); // 生成一个 4 位随机数
+
+        $uniquePart = substr(str_replace('.', '', (string)$microtime), -6) . $randomPart;
+        return $datePart . $uniquePart;
     }
 
     /**
@@ -162,12 +168,101 @@ class Common
      * @param $lat
      * @return string
      */
-    public static function distance($first_lng,$first_lat, $lng, $lat) {
+    public static function distance($first_lng, $first_lat, $lng, $lat)
+    {
         $earth_radius = 6371; // 地球半径，单位为公里
         $delta_lng = deg2rad($lng - $first_lng);
         $delta_lat = deg2rad($lat - $first_lat);
         $a = sin($delta_lat / 2) * sin($delta_lat / 2) + cos(deg2rad($first_lng)) * cos(deg2rad($lat)) * sin($delta_lng / 2) * sin($delta_lng / 2);
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-        return number_format($earth_radius * $c,2,'.','');
+        return number_format($earth_radius * $c, 2, '.', '');
+    }
+
+
+    // 腾讯地图获取 两个经纬度之间的距离
+
+    /**
+     * @param $lat1
+     * @param $lon1
+     * @param $lat2
+     * @param $lon2
+     * @param $unit
+     * @return float|int
+     */
+    public function getDistanceBetweenPoints($lat1, $lon1, $lat2, $lon2, $unit = 'km')
+    {
+        // 将经纬度从度转换为弧度
+        $lat1 = deg2rad($lat1);
+        $lon1 = deg2rad($lon1);
+        $lat2 = deg2rad($lat2);
+        $lon2 = deg2rad($lon2);
+
+        // 计算差值
+        $deltaLat = $lat2 - $lat1;
+        $deltaLon = $lon2 - $lon1;
+
+        // Haversine 公式
+        $a = sin($deltaLat / 2) * sin($deltaLat / 2) +
+            cos($lat1) * cos($lat2) * sin($deltaLon / 2) * sin($deltaLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        // 地球半径（单位：公里）
+        $earthRadius = 6371;
+
+        // 计算距离（单位：公里）
+        $distance = $earthRadius * $c;
+
+        // 根据单位转换距离
+        switch (strtolower($unit)) {
+            case 'm': // 米
+                $distance *= 1000;
+                break;
+            case 'km': // 公里
+                // 默认单位，无需转换
+                break;
+            case 'mi': // 英里
+                $distance *= 0.621371;
+                break;
+            case 'ft': // 英尺
+                $distance *= 3280.84;
+                break;
+            default:
+                throw new \InvalidArgumentException("不支持的单位: {$unit}");
+        }
+
+        return $distance;
+    }
+
+
+    /**
+     * 腾讯 根据地址获取经纬度
+     * @param $address
+     * @param $apiKey
+     * @return array|null
+     */
+    function getLatLngFromAddressByTencent($address, $apiKey)
+    {
+        // 构建请求 URL
+        $url = "https://apis.map.qq.com/ws/geocoder/v1/?address=" . urlencode($address) . "&key=" . $apiKey;
+
+        // 发起请求
+        $response = file_get_contents($url);
+
+        // 解析 JSON 数据
+        $data = json_decode($response, true);
+
+        // 检查是否成功
+        if ($data && $data['status'] === 0) {
+            $latitude = $data['result']['location']['lat'];  // 纬度
+            $longitude = $data['result']['location']['lng']; // 经度
+            return [
+                'latitude' => $latitude,
+                'longitude' => $longitude
+            ];
+        } else {
+            // 记录错误日志
+            error_log("腾讯地图 Geocoding API 请求失败: " . json_encode($data));
+            return null;
+        }
     }
 }
