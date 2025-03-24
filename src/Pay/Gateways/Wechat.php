@@ -226,7 +226,6 @@ abstract class Wechat extends GatewayInterface
             $data = $this->fromXml($this->post($url, $this->toXml($this->config)));
         }
 //        print_r($data);
-        file_put_contents('./runtime/toxml.txt', var_export($data,true).PHP_EOL,FILE_APPEND);
         if (!isset($data['return_code']) || $data['return_code'] !== 'SUCCESS' || $data['result_code'] !== 'SUCCESS') {
             $error = 'ResultError:' . $data['return_msg'];
             $error .= isset($data['err_code_des']) ? ' - ' . $data['err_code_des'] : '';
@@ -237,8 +236,8 @@ abstract class Wechat extends GatewayInterface
             }
         }
         if (isset($error)) {
-            return false;
             throw new GatewayException($error, 20000, $data);
+            return false;
         }
         return $data;
     }
