@@ -3,6 +3,7 @@
 namespace Liwanyi\Utils2\models;
 // 使用thinkphp 框架即可 composer dump-autoload
 use think\Model;
+
 class BModel extends Model implements ModelInterface
 {
     private static $instances = [];
@@ -21,7 +22,7 @@ class BModel extends Model implements ModelInterface
         return $this->save($data);
     }
 
-    public function readData(array $where = [], array $with = [],$field=['*'])
+    public function readData(array $where = [], array $with = [], $field = ['*'])
     {
         return $this->with($with)->where($where)->field($field)->find();
     }
@@ -89,4 +90,16 @@ class BModel extends Model implements ModelInterface
     {
         return $this->where($where)->update(['deleted_time' => date('Y-m-d H:i:s')]);
     }
+
+    // 根据字段增加
+    public function setDecFieldValue(string $field, int|float|string $deal_value)
+    {
+        return $this->setDec($field,$deal_value);
+    }
+    // 根据字段减少
+    public function setIncFieldValue(string $field, int|float|string $deal_value)
+    {
+        return $this->setInc($field,$deal_value);
+    }
+
 }
