@@ -92,14 +92,14 @@ class BModel extends Model implements ModelInterface
     }
 
     // 根据字段增加
-    public function setDecFieldValue(string $field, int|float|string $deal_value)
+    public function setDecFieldValue(array $where,string $field, int|float|string $deal_value)
     {
-        return $this->setDec($field,$deal_value);
+        return $this->where($where)->setDec($field,$deal_value);
     }
     // 根据字段减少
-    public function setIncFieldValue(string $field, int|float|string $deal_value)
+    public function setIncFieldValue(array $where,string $field, int|float|string $deal_value)
     {
-        return $this->setInc($field,$deal_value);
+        return $this->where($where)->setInc($field,$deal_value);
     }
 
 }

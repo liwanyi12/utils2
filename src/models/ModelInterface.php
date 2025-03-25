@@ -13,7 +13,7 @@ interface ModelInterface
 
     public function softDeleteData(array $where = []);
 
-    public function setDecFieldValue(string $field, int|float|string $deal_value);
+    public function setDecFieldValue(array $where,string $field, int|float|string $deal_value);
 
-    public function setIncFieldValue(string $field, int|float|string $deal_value);
+    public function setIncFieldValue(array $where,string $field, int|float|string $deal_value);
 }
