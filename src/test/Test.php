@@ -11,7 +11,7 @@ class Test
 {
     public function test()
     {
-        return (new Math())->mul(1,2);
+
     }
 
 }

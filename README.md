@@ -24,7 +24,6 @@ echo "获取排名失败。\n";
 
 // 退款方法 已经测试 可以正常退款
 
-
 `public function test()
 {
 $order = [
@@ -52,7 +51,11 @@ return true;
 
     }`
 
-
+$balance = "50.50";
+$withdraw = 50.25;
+if ((new Math())->compareNumbers($balance, $withdraw) >= 0) {
+echo "允许提款";
+}
 
 
 

@@ -27,7 +27,15 @@ class BModel extends Model implements ModelInterface
         return $this->with($with)->where($where)->field($field)->find();
     }
 
-    //$data = [
+
+    /**
+     * @param array $where
+     * @param array $with
+     * @param $field
+     * @param array $data
+     * @return mixed
+     *
+     //$data = [
     //    'like' => [
     //        'name' => 'John', // 模糊查询 name 字段包含 'John' 的记录
     //    ],
@@ -44,6 +52,7 @@ class BModel extends Model implements ModelInterface
     //    ['id', 'name', 'created_at'], // 查询的字段
     //    $data // 其他查询参数
     //);
+     */
     public function selectData(array $where = [], array $with = [], $field = ['*'], array $data = [])
     {
         // 初始化查询构建器

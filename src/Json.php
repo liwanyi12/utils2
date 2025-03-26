@@ -8,8 +8,7 @@ class Json
     // 保存json 数据类型
     public function saveJsonValue($value)
     {
-        $json = html_entity_decode($value);
-        return $json;
+        return html_entity_decode($value);
     }
 
 
