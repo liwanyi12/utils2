@@ -52,7 +52,7 @@ class Math
     public static function div(string $a, string $b, int $scale = 2): string
     {
         if (bccomp($b, '0', $scale) === 0) {
-            throw new InvalidArgumentException('Division by zero');
+            throw new \InvalidArgumentException('Division by zero');
         }
         return bcdiv($a, $b, $scale);
     }

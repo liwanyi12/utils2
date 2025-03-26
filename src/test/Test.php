@@ -4,13 +4,14 @@ namespace Liwanyi\Utils2\test;
 // 一定要进行加载引入
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use Liwanyi\Utils2\Math;
 use Liwanyi\Utils2\Refund;
 
 class Test
 {
     public function test()
     {
-
+        return (new Math())->mul(1,2);
     }
 
 }
