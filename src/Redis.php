@@ -710,11 +710,11 @@ class Redis
             // 月榜 key（如 "month_rank_2023_10"）
             $monthKey = 'month_rank_' . date('Y_m');
 
-            // 更新总榜、日榜、周榜和月榜的分数
-            $this->redis->zadd($totalKey, $score, $member);
-            $this->redis->zadd($dayKey, $score, $member);
-            $this->redis->zadd($weekKey, $score, $member);
-            $this->redis->zadd($monthKey, $score, $member);
+            // 更新总榜、日榜、周榜和月榜的分数 (分值累加）
+            $this->redis->zIncrBy($totalKey, $score, $member);
+            $this->redis->zIncrBy($dayKey, $score, $member);
+            $this->redis->zIncrBy($weekKey, $score, $member);
+            $this->redis->zIncrBy($monthKey, $score, $member);
 
             // 设置过期时间
             if ($expireDay !== null) {

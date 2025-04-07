@@ -74,4 +74,18 @@ class StringHelper
 
         return explode($delimiter, $string);
     }
+
+
+    /**
+     * 用于将字符串按照指定长度进行换行分割
+     * @param string $string
+     * @param int $length
+     * @param string $deal_string
+     * @return string
+     */
+    public static function getNextDealString(string $string, int $length = 10, string $deal_string = "\n"): string
+    {
+        return wordwrap($string, $length, $deal_string, true);
+    }
+
 }
