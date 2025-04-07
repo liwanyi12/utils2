@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace Liwanyi\Utils2;
 
 class Date
@@ -35,5 +36,33 @@ class Date
     {
         list($y, $m, $d) = explode('-', date('Y-m-d'));
         return mktime(23, 59, 59, intval($m), intval($d), intval($y)) - time();
+    }
+
+    /**
+     * 计算多少天前的日期
+     * @param int $days
+     * @param string $format
+     * @return string
+     *
+     * 使用案例：
+     * days_ago(7); // 7天前的日期
+     */
+    public static function days_ago(int $days, string $format = 'Y-m-d'): string
+    {
+        return date($format, strtotime("-$days days"));
+    }
+
+    /**
+     * 判断是否是周末
+     * @param string|null $date
+     * @return bool
+     *
+     * 使用案例：
+     * is_weekend('2023-05-20'); // true
+     */
+    public static function is_weekend(?string $date = null): bool
+    {
+        $day = date('N', $date ? strtotime($date) : time());
+        return $day >= 6;
     }
 }

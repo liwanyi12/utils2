@@ -57,6 +57,23 @@ if ((new Math())->compareNumbers($balance, $withdraw) >= 0) {
 echo "允许提款";
 }
 
+# liwanyi/utils2
+
+ThinkPHP 增强工具库
+
+## 安装
+
+```bash
+composer require liwanyi/utils2
+```
+
+## 可选依赖
+
+- Redis支持：需安装`ext-redis`扩展
+- 数据库功能：需额外安装`composer require topthink/think-orm`
+- 缓存功能：需安装`composer require psr/simple-cache`
+
+## 使用示例
 
 
 

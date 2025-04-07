@@ -265,4 +265,32 @@ class Common
             return null;
         }
     }
+
+    /**
+     * 判断是否是AJAX请求
+     * @return bool
+     *
+     * 使用案例：
+     * if (is_ajax()) { ... }
+     */
+    public static function is_ajax(): bool
+    {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+    }
+
+    /**
+     * 获取客户端IP
+     * @return string
+     *
+     * 使用案例：
+     * $ip = get_client_ip();
+     */
+    public static function get_client_ip(): string
+    {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ??
+            $_SERVER['HTTP_CLIENT_IP'] ??
+            $_SERVER['REMOTE_ADDR'] ?? '';
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '';
+    }
 }

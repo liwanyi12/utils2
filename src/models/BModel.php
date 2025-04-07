@@ -1,13 +1,25 @@
 <?php
 
 namespace Liwanyi\Utils2\models;
-// 使用thinkphp 框架即可 composer dump-autoload
+
 use think\Model;
 
+/**
+ * 基础模型类
+ * 实现 ModelInterface 接口并提供 ThinkPHP 的模型功能
+ */
 class BModel extends Model implements ModelInterface
 {
+    /**
+     * 实例缓存数组
+     * @var array
+     */
     private static $instances = [];
 
+    /**
+     * 获取单例实例
+     * @return self
+     */
     public static function getInstance(): self
     {
         $class = get_called_class();
@@ -17,98 +29,127 @@ class BModel extends Model implements ModelInterface
         return self::$instances[$class];
     }
 
+    /**
+     * 创建新记录
+     * @param array $data 要插入的数据
+     * @param array $where 条件数组(用于防重复检查等场景)
+     * @return mixed 返回创建的结果
+     */
     public function createData(array $data, array $where = [])
     {
+        if (!empty($where)) {
+            $exists = $this->where($where)->find();
+            if ($exists) {
+                return false;
+            }
+        }
         return $this->save($data);
     }
 
+    /**
+     * 读取单条数据
+     * @param array $where 查询条件
+     * @param array $with 关联预加载
+     * @param array $field 查询字段
+     * @return mixed
+     */
     public function readData(array $where = [], array $with = [], $field = ['*'])
     {
-        return $this->with($with)->where($where)->field($field)->find();
+        return $this->with($with)
+            ->where($where)
+            ->field($field)
+            ->find();
     }
 
-
     /**
-     * @param array $where
-     * @param array $with
-     * @param $field
-     * @param array $data
+     * 查询多条数据
+     * @param array $where 查询条件
+     * @param array $with 关联预加载
+     * @param array $field 查询字段
+     * @param array $options 其他选项 (like/page/list_rows/order)
      * @return mixed
-     *
-     //$data = [
-    //    'like' => [
-    //        'name' => 'John', // 模糊查询 name 字段包含 'John' 的记录
-    //    ],
-    //    'page' => 1, // 查询第1页
-    //    'list_rows' => 10, // 每页显示10条记录
-    //    'order' => [
-    //        'created_at' => 'desc', // 按创建时间降序排列
-    //    ],
-    //];
-    //
-    //$result = $this->selectData(
-    //    ['status' => 1], // 精确查询 status = 1
-    //    ['profile'], // 关联查询 profile
-    //    ['id', 'name', 'created_at'], // 查询的字段
-    //    $data // 其他查询参数
-    //);
      */
-    public function selectData(array $where = [], array $with = [], $field = ['*'], array $data = [])
+    public function selectData(array $where = [], array $with = [], $field = ['*'], array $options = [])
     {
-        // 初始化查询构建器
         $query = $this->with($with)->where($where)->field($field);
 
         // 模糊查询处理
-        if (isset($data['like']) && is_array($data['like'])) {
-            foreach ($data['like'] as $field => $keyword) {
-                $query->where($field, 'like', "%{$keyword}%");
+        if (isset($options['like']) && is_array($options['like'])) {
+            foreach ($options['like'] as $field => $keyword) {
+                $query->whereLike($field, "%{$keyword}%");
             }
         }
 
-        // 分页处理
-        if (isset($data['page']) && $data['page'] && isset($data['list_rows']) && $data['list_rows']) {
-            $paginate = [
-                'page' => $data['page'],
-                'list_rows' => $data['list_rows'],
-            ];
-            return $query->paginate($paginate);
-        }
-
         // 排序处理
-        if (isset($data['order']) && is_array($data['order'])) {
-            foreach ($data['order'] as $field => $direction) {
+        if (isset($options['order']) && is_array($options['order'])) {
+            foreach ($options['order'] as $field => $direction) {
                 $query->order($field, $direction);
             }
         }
 
-        // 返回查询结果
+        // 分页处理
+        if (isset($options['page']) && $options['page'] && isset($options['list_rows']) && $options['list_rows']) {
+            return $query->paginate([
+                'page' => $options['page'],
+                'list_rows' => $options['list_rows'],
+            ]);
+        }
+
         return $query->select();
     }
 
+    /**
+     * 更新数据
+     * @param array $where 更新条件
+     * @param array $data 更新数据
+     * @return int 影响的行数
+     */
     public function updateData(array $where = [], array $data = [])
     {
         return $this->where($where)->update($data);
     }
 
+    /**
+     * 删除数据(物理删除)
+     * @param array $where 删除条件
+     * @return int 影响的行数
+     */
     public function deleteData(array $where = [])
     {
         return $this->where($where)->delete();
     }
 
+    /**
+     * 软删除数据
+     * @param array $where 删除条件
+     * @return int 影响的行数
+     */
     public function softDeleteData(array $where = [])
     {
-        return $this->where($where)->update(['deleted_time' => date('Y-m-d H:i:s')]);
+        return $this->where($where)->update(['deleted_time' => time()]);
     }
 
-    // 根据字段增加
-    public function setDecFieldValue(array $where,string $field,$deal_value)
+    /**
+     * 字段值递减
+     * @param array $where 条件
+     * @param string $field 字段名
+     * @param int|float $value 递减值
+     * @return int 影响的行数
+     */
+    public function setDecFieldValue(array $where, string $field, $value)
     {
-        return $this->where($where)->setDec($field,$deal_value);
-    }
-    // 根据字段减少
-    public function setIncFieldValue(array $where,string $field,  $deal_value)
-    {
-        return $this->where($where)->setInc($field,$deal_value);
+        return $this->where($where)->setDec($field, $value);
     }
 
+    /**
+     * 字段值递增
+     * @param array $where 条件
+     * @param string $field 字段名
+     * @param int|float $value 递增值
+     * @return int 影响的行数
+     */
+    public function setIncFieldValue(array $where, string $field, $value)
+    {
+        return $this->where($where)->setInc($field, $value);
+    }
 }
