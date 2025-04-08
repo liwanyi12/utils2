@@ -25,7 +25,12 @@ class StringHelper
         return substr(str_shuffle($strs), mt_rand(0, strlen($strs) - 11), $length);
     }
 
-    // 判断是否包含字符串
+    /**
+     * 判断是否包含字符串
+     * @param string $string
+     * @param $contained
+     * @return bool
+     */
     public static function isContainStrings(string $string, $contained): bool
     {
         return strpos($string, strval($contained)) !== false; // 简化返回
@@ -61,7 +66,6 @@ class StringHelper
 
     /**
      * 根据指定字符切割字符串为数组
-     *
      * @param string $string 要切割的字符串
      * @param string $delimiter 分隔符
      * @return array 切割后的数组
