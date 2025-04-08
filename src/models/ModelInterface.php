@@ -12,6 +12,17 @@ interface ModelInterface
      */
     public function createData(array $data, array $where = []);
 
+
+    /**
+     * 多数据读取
+     * @param array $where
+     * @param array $with
+     * @param $field
+     * @param array $options
+     * @return mixed
+     */
+    public function selectData(array $where = [], array $with = [], $field = ['*'], array $options = []);
+
     /**
      * 读取数据
      * @param array $where 查询条件
