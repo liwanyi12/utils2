@@ -832,4 +832,78 @@ class Redis
             'user_rank' => $userRank !== false ? $userRank + 1 : null // 排名从 1 开始
         ];
     }
+
+    /**
+     * 排行榜删除数据元素
+     * @param $member_id
+     * @return int
+     */
+    public function deleteMember($member_id)
+    {
+        $member_id = (string)$member_id;
+
+        // 定义所有可能的键模式
+        $patterns = [
+            'day_rank_*',
+            'week_rank_*',
+            'month_rank_*',
+            'total_rank' // 直接包含总榜，避免单独处理
+        ];
+
+        $allKeys = [];
+
+        foreach ($patterns as $pattern) {
+            // 如果是具体键名（非通配符），直接加入
+            if (strpos($pattern, '*') === false) {
+                $allKeys[] = $pattern;
+                continue;
+            }
+
+            // 使用封装的 scanKeys 方法
+            $keys = $this->scanKeys($pattern);
+            $allKeys = array_merge($allKeys, $keys);
+        }
+
+        // 去重，避免重复操作
+        $allKeys = array_unique($allKeys);
+
+        // 批量删除
+        foreach ($allKeys as $key) {
+            $this->zRemValue($key, $member_id);
+        }
+
+        return count($allKeys); // 返回处理的键数量
+    }
+
+    /**
+     * 执行 Redis SCAN 操作（安全遍历键）
+     *
+     * @param string $pattern 匹配模式（如 "day_rank_*"）
+     * @param int $count 每次迭代返回的元素数量（0表示默认）
+     * @param string|null $type 键类型（如 "string", "zset", 可选）
+     * @return array 所有匹配的键
+     */
+    public function scanKeys(string $pattern = '*', int $count = 100, ?string $type = null): array
+    {
+        $allKeys = [];
+        $iterator = null;
+
+        do {
+            // 根据是否指定类型调用不同的 SCAN 命令
+            if ($type !== null) {
+                $keys = $this->redis->scan($iterator, $pattern, $count, $type);
+            } else {
+                $keys = $this->redis->scan($iterator, $pattern, $count);
+            }
+
+            if ($keys === false) {
+                break; // 扫描失败时终止
+            }
+
+            $allKeys = array_merge($allKeys, $keys);
+        } while ($iterator > 0);
+
+        return $allKeys;
+    }
+
 }
