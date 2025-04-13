@@ -316,7 +316,7 @@ class Redis
      * @param string ...$otherKeys
      * @return int
      */
-    public function sUnionStore(string $dstKey, string $key1,string ...$otherKeys)
+    public function sUnionStore(string $dstKey, string $key1, string ...$otherKeys)
     {
         return $this->redis->sUnionStore($dstKey, $key1, $otherKeys);
     }
@@ -459,7 +459,7 @@ class Redis
      * @param mixed $value
      * @return int
      */
-    public function lInsert(string $key, int $position , string $pivot, mixed $value)
+    public function lInsert(string $key, int $position, string $pivot, mixed $value)
     {
         return $this->redis->lInsert($key, $position, $pivot, $value);
     }
@@ -471,7 +471,7 @@ class Redis
      * @param int $stop
      * @return array|bool
      */
-    public function lTrim(string $key, int $start,int $stop)
+    public function lTrim(string $key, int $start, int $stop)
     {
         return $this->redis->lTrim($key, $start, $stop);
     }
@@ -481,7 +481,7 @@ class Redis
      * @param $key
      * @return bool|mixed
      */
-    public function rPushx(string $key,mixed $value)
+    public function rPushx(string $key, mixed $value)
     {
         return $this->redis->rPushx($key, $value);
     }
@@ -540,9 +540,9 @@ class Redis
      * @param string ...$otherKeys
      * @return array
      */
-    public function sdiff(string $key,string ...$otherKeys)
+    public function sdiff(string $key, string ...$otherKeys)
     {
-        return $this->redis->sDiff($key,$otherKeys);
+        return $this->redis->sDiff($key, $otherKeys);
     }
 
     /**
@@ -552,7 +552,7 @@ class Redis
      * @param string ...$otherKeys
      * @return bool|int
      */
-    public function sdiffStore(string $dstKey, string $key1,string  ...$otherKeys)
+    public function sdiffStore(string $dstKey, string $key1, string  ...$otherKeys)
     {
         return $this->redis->sDiffStore($dstKey, $key1, $otherKeys);
     }
@@ -571,9 +571,9 @@ class Redis
     /*
      * 返回给定所有集合的交集并存储在 新的集合 中
      */
-    public function sinterStore(string $dstKey,string $key1,string ...$otherKeys)
+    public function sinterStore(string $dstKey, string $key1, string ...$otherKeys)
     {
-        return $this->redis->sinterStore($dstKey,$key1, $otherKeys);
+        return $this->redis->sinterStore($dstKey, $key1, $otherKeys);
     }
 
     /**
@@ -594,7 +594,7 @@ class Redis
      * @param int $count
      * @return array|bool|mixed|string
      */
-    public function sPop(string $key, int $count=1)
+    public function sPop(string $key, int $count = 1)
     {
         return $this->redis->sPop($key, $count);
     }
@@ -688,11 +688,12 @@ class Redis
      */
     public function addScore(
         string $member,
-        float $score,
-        ?int $expireDay = 604800,    // 默认 7 天
-        ?int $expireWeek = 2592000,  // 默认 30 天
-        ?int $expireMonth = 31536000 // 默认 365 天
-    ): bool {
+        float  $score,
+        ?int   $expireDay = 604800,    // 默认 7 天
+        ?int   $expireWeek = 2592000,  // 默认 30 天
+        ?int   $expireMonth = 31536000 // 默认 365 天
+    ): bool
+    {
         if (!$member) {
             return false;
         }
@@ -904,6 +905,152 @@ class Redis
         } while ($iterator > 0);
 
         return $allKeys;
+    }
+
+    /**
+     * 获取带前缀的队列名
+     *
+     * @param string $queue
+     * @return string
+     */
+    protected function getQueueName(string $queue): string
+    {
+        if (isset($this->config['prefix'])) {
+            if ($this->config['prefix']) {
+                $prefix = $this->config['prefix'];
+            } else {
+                $prefix = 'default_queue_';
+            }
+        }
+        return $prefix . $queue;
+    }
+
+    /**
+     * 推送消息到队列
+     *
+     * @param string $queue 队列名
+     * @param mixed $data 消息数据
+     * @return int 队列长度
+     * @throws QueueException
+     */
+    public function push(string $queue, $data): int
+    {
+        try {
+            $serialized = serialize($data);
+            return $this->lPushValue($this->getQueueName($queue), $serialized);
+        } catch (\Exception $e) {
+            throw new \Exception("队列推送失败: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * 从队列获取消息
+     *
+     * @param string $queue 队列名
+     * @param int $timeout 超时时间(秒)
+     * @return mixed|null
+     * @throws QueueException
+     */
+    public function pop(string $queue, int $timeout = 0)
+    {
+        try {
+            $queueName = $this->getQueueName($queue);
+
+            if ($timeout > 0) {
+                $result = $this->redis->brPop([$queueName], $timeout);
+                return $result ? unserialize($result[1]) : null;
+            }
+
+            $data = $this->redis->rPop($queueName);
+            return $data ? unserialize($data) : null;
+        } catch (\Exception $e) {
+            throw new \Exception("队列弹出失败: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * 添加延迟消息
+     *
+     * @param string $queue 队列名
+     * @param mixed $data 消息数据
+     * @param int $delay 延迟秒数
+     * @return bool
+     * @throws QueueException
+     */
+    public function delay(string $queue, $data, int $delay): bool
+    {
+        try {
+            $serialized = serialize($data);
+            $score = time() + $delay;
+            return (bool)$this->redis->zAdd(
+                $this->getQueueName($queue) . ':delayed',
+                $score,
+                $serialized
+            );
+        } catch (\Exception $e) {
+            throw new Exception("延迟队列添加失败: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * 处理延迟队列中的到期消息
+     *
+     * @param string $queue 队列名
+     * @param int $max 最大处理数量
+     * @return int 处理的消息数量
+     * @throws QueueException
+     */
+    public function processDelayed(string $queue, int $max = 100): int
+    {
+        try {
+            $now = time();
+            $delayedQueue = $this->getQueueName($queue) . ':delayed';
+            $mainQueue = $this->getQueueName($queue);
+
+            $items = $this->redis->zRangeByScore(
+                $delayedQueue,
+                0,
+                $now,
+                ['limit' => [0, $max]]
+            );
+
+            if (empty($items)) {
+                return 0;
+            }
+
+            $pipe = $this->redis->multi(Redis::PIPELINE);
+            foreach ($items as $item) {
+                $pipe->lPush($mainQueue, $item);
+                $pipe->zRem($delayedQueue, $item);
+            }
+            $pipe->exec();
+
+            return count($items);
+        } catch (\Exception $e) {
+            throw new Exception("处理延迟队列失败: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * 获取队列长度
+     *
+     * @param string $queue 队列名
+     * @return int
+     */
+    public function size(string $queue): int
+    {
+        return $this->lLenList($this->getQueueName($queue));
+    }
+
+    /**
+     * 清空队列
+     *
+     * @param string $queue 队列名
+     * @return bool
+     */
+    public function clear(string $queue): bool
+    {
+        return (bool)$this->redis->del($this->getQueueName($queue));
     }
 
 }
