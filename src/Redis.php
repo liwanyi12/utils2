@@ -988,7 +988,7 @@ class Redis
                 $serialized
             );
         } catch (\Exception $e) {
-            throw new Exception("延迟队列添加失败: " . $e->getMessage());
+            throw new \Exception("延迟队列添加失败: " . $e->getMessage());
         }
     }
 
@@ -1018,7 +1018,7 @@ class Redis
                 return 0;
             }
 
-            $pipe = $this->redis->multi(Redis::PIPELINE);
+            $pipe = $this->redis->multi();
             foreach ($items as $item) {
                 $pipe->lPush($mainQueue, $item);
                 $pipe->zRem($delayedQueue, $item);
@@ -1027,7 +1027,7 @@ class Redis
 
             return count($items);
         } catch (\Exception $e) {
-            throw new Exception("处理延迟队列失败: " . $e->getMessage());
+            throw new \Exception("处理延迟队列失败: " . $e->getMessage());
         }
     }
 
