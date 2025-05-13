@@ -435,12 +435,3 @@ if (!function_exists('benchmark')) {
         return [$result, round(microtime(true) - $start, $round)];
     }
 }
-
-
-if (!extension_loaded('redis')) {
-    throw new \RuntimeException('Redis扩展未安装，请安装或启用ext-redis');
-}
-
-if (!function_exists('think\\facade\\Db::table')) {
-    throw new \RuntimeException('需要安装topthink/think-orm包');
-}
