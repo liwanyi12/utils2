@@ -60,7 +60,7 @@ interface ModelInterface
      * @param int|float $value 递减值
      * @return int 返回受影响的行数
      */
-    public function setDecFieldValue(array $where, string $field, $value);
+    public function decFieldData(array $where, string $field, $value);
 
     /**
      * 字段值递增
@@ -69,5 +69,5 @@ interface ModelInterface
      * @param int|float $value 递增值
      * @return int 返回受影响的行数
      */
-    public function setIncFieldValue(array $where, string $field, $value);
+    public function incFieldData(array $where, string $field, $value);
 }

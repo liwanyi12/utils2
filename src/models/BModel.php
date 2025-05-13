@@ -2,27 +2,88 @@
 
 namespace Liwanyi\Utils2\models;
 
-/**
- * 基础模型类
- */
-abstract class BModel extends ThinkORMDecorator
-{
-    // 现在BModel只是一个抽象基类，具体实现由装饰器处理
-    // 你可以在这里添加一些所有模型共用的方法
+use think\Model;
 
-    /**
-     * 缓存查询结果（默认60秒）
-     */
-    public static function cachedFind($id, int $ttl = 60)
+class BModel extends Model implements ModelInterface
+{
+    private static $instances = [];
+
+    // 实例化
+    public static function getInstance(): self
     {
-        $cacheKey = static::getCacheKey($id);
-        return cache()->remember($cacheKey, function() use ($id) {
-            return static::find($id);
-        }, $ttl);
+        $class = get_called_class();
+        if (!isset(self::$instances[$class])) {
+            self::$instances[$class] = new static();
+        }
+        return self::$instances[$class];
     }
 
-    protected static function getCacheKey($id)
+    // 创建数据
+    public function createData(array $data, array $where = [])
     {
-        return strtolower(static::getTable()) . '_' . $id;
+        return $this->save($data);
+    }
+
+    //数据查询
+    public function readData(array $where = [], array $with = [])
+    {
+        return $this->with($with)->where($where)->find();
+    }
+
+    // 数据更新
+    public function updateData(array $where = [], array $data = [])
+    {
+        return $this->where($where)->update($data);
+    }
+
+    //数据删除
+    public function deleteData(array $where = [])
+    {
+        return $this->where($where)->destroy();
+    }
+
+    //软删除
+    public function softDeleteData(array $where = [])
+    {
+        return $this->where($where)->update(['deleted_at' => date('Y-m-d H:i:s')]);
+    }
+
+    // 字段自减
+    public function decFieldData(array $where, string $field, $value): int
+    {
+        return $this->where($where)->setDec($field, $value);
+    }
+
+    // 字段自增
+    public function incFieldData(array $where, string $field, $value): int
+    {
+        return $this->where($where)->setInc($field, $value);
+    }
+
+    // 筛选数据
+    public function selectData(array $where = [], array $with = [], $field = ['*'], array $options = [])
+    {
+        $query = $this->with($with)->where($where)->field($field);
+
+        if (isset($options['like']) && is_array($options['like'])) {
+            foreach ($options['like'] as $field => $keyword) {
+                $query->whereLike($field, "%{$keyword}%");
+            }
+        }
+
+        if (isset($options['order']) && is_array($options['order'])) {
+            foreach ($options['order'] as $field => $direction) {
+                $query->order($field, $direction);
+            }
+        }
+
+        if (isset($options['page']) && $options['page'] && isset($options['list_rows']) && $options['list_rows']) {
+            return $query->paginate([
+                'page' => $options['page'],
+                'list_rows' => $options['list_rows'],
+            ]);
+        }
+
+        return $query->select();
     }
 }
